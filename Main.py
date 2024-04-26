@@ -1,33 +1,27 @@
 import sqlite3
 
+conn = sqlite3.connect('produtos.db')
+c = conn.cursor()
 
-def connect_to_database():
-  conn = sqlite3.connect('produtos.db')
-  c = conn.cursor()
-
-  c.execute('''
-        CREATE TABLE IF NOT EXISTS produtos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            number INTEGER DEFAULT 1,
-            nome TEXT,
-            preco FLOAT,
-            codigo INTEGER,
-            tamanho INTEGER,
-            cor TEXT,
-            modelo TEXT,
-            marca TEXT,
-            quantidade INTEGER
-        )
-    ''')
-
-  conn.commit()
-  return conn
+c.execute('''
+      CREATE TABLE IF NOT EXISTS produtos (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          number INTEGER DEFAULT 1,
+          nome TEXT,
+          preco FLOAT,
+          codigo INTEGER,
+          tamanho INTEGER,
+          cor TEXT,
+          modelo TEXT,
+          marca TEXT,
+          quantidade INTEGER
+      )
+  ''')
 
 
-def adicionar_produto(conn, nome, preco, codigo, tamanho, cor, modelo, marca,
+def adicionar_produto(nome, preco, codigo, tamanho, cor, modelo, marca,
                       quantidade):
   try:
-    c = conn.cursor()
 
     c.execute('SELECT MAX(number) FROM produtos WHERE codigo = ?', (codigo, ))
     max_number = c.fetchone()[0]
@@ -40,15 +34,13 @@ def adicionar_produto(conn, nome, preco, codigo, tamanho, cor, modelo, marca,
             ''',
         (number, nome, preco, codigo, tamanho, cor, modelo, marca, quantidade))
 
-    conn.commit()
     print("Produto adicionado com sucesso!")
   except Exception as e:
     print(f"Erro ao adicionar produto: {e}")
 
 
-def buscar_produto(conn, codigo):
+def buscar_produto(codigo):
   try:
-    c = conn.cursor()
 
     c.execute(
         'SELECT number, nome, preco, codigo, tamanho, cor, modelo, marca, quantidade FROM produtos WHERE codigo = ?',
@@ -70,7 +62,7 @@ def buscar_produto(conn, codigo):
       if len(produtos) > 1:
         number = int(input("Insira o N° do produto: "))
       else:
-        number = produtos[0][0]
+        number = produtos[0][1]
 
       if sub_menu == 1:
         nome = input("Novo nome do produto: ")
@@ -96,32 +88,29 @@ def buscar_produto(conn, codigo):
           except ValueError:
             print("Por favor, insira um valor numérico para a quantidade.")
 
-        editar_produto(conn, codigo, number, nome, preco, tamanho, cor, modelo,
+        editar_produto(codigo, number, nome, preco, tamanho, cor, modelo,
                        marca, quantidade)
       elif sub_menu == 2:
-        deletar_produto(conn, codigo, number)
+        deletar_produto(codigo, number)
   except Exception as e:
     print(f"Erro ao buscar produto: {e}")
 
 
-def editar_produto(conn, codigo, number, nome, preco, tamanho, cor, modelo,
-                   marca, quantidade):
+def editar_produto(codigo, number, nome, preco, tamanho, cor, modelo, marca,
+                   quantidade):
   try:
-    c = conn.cursor()
 
     c.execute(
         'UPDATE produtos SET nome=?, preco=?, tamanho=?, cor=?, modelo=?, marca=?, quantidade=? WHERE codigo=? AND number=?',
         (nome, preco, tamanho, cor, modelo, marca, quantidade, codigo, number))
 
-    conn.commit()
     print("Produto editado com sucesso!")
   except Exception as e:
     print(f"Erro ao editar produto: {e}")
 
 
-def deletar_produto(conn, codigo, number):
+def deletar_produto(codigo, number):
   try:
-    c = conn.cursor()
 
     c.execute('DELETE FROM produtos WHERE codigo=? AND number=?',
               (codigo, number))
@@ -130,15 +119,13 @@ def deletar_produto(conn, codigo, number):
         'UPDATE produtos SET number=number-1 WHERE codigo=? AND number>?',
         (codigo, number))
 
-    conn.commit()
     print("Produto deletado com sucesso!")
   except Exception as e:
     print(f"Erro ao deletar produto: {e}")
 
 
-def vender_produto(conn, codigo):
+def vender_produto(codigo):
   try:
-    c = conn.cursor()
 
     c.execute(
         'SELECT number, nome, preco, codigo, tamanho, cor, modelo, marca, quantidade FROM produtos WHERE codigo = ?',
@@ -164,7 +151,6 @@ def vender_produto(conn, codigo):
           c.execute(
               'UPDATE produtos SET quantidade = ? WHERE codigo = ? and number = ?',
               (nova_quantidade, codigo, number))
-          conn.commit()
           print("Produto vendido com sucesso!")
         else:
           print("Produto sem estoque")
@@ -174,57 +160,51 @@ def vender_produto(conn, codigo):
     print(f"Erro ao vender produto: {e}")
 
 
-def main():
-  conn = connect_to_database()
-
-  menu = int(
-      input('''O que você quer fazer?
+menu = int(
+    input('''O que você quer fazer?
 1- Vender produto
 2- Checar produto
 3- Adicionar novo produto
 '''))
 
-  if menu == 1:
-    codigo = input("Insira o código do produto: ")
-    vender_produto(conn, codigo)
-  elif menu == 2:
-    codigo = input("Insira o código do produto: ")
-    buscar_produto(conn, codigo)
-  elif menu == 3:
-    nome = input("Nome do produto: ")
-    while True:
-      try:
-        preco = float(input("Preço do produto: "))
-        break
-      except ValueError:
-        print("Por favor, insira um valor numérico para o preço.")
-    codigo = input("Código do produto: ")
-    while True:
-      try:
-        tamanho = int(input("Tamanho do produto: "))
-        break
-      except ValueError:
-        print("Por favor, insira um valor numérico para o tamanho.")
-    cor = input("Cor do produto: ")
-    modelo = input("Modelo do produto: ")
-    marca = input("Marca do produto: ")
-    while True:
-      try:
-        quantidade = int(input("Quantidade do produto: "))
-        break
-      except ValueError:
-        print("Por favor, insira um valor numérico para a quantidade.")
+if menu == 1:
+  codigo = input("Insira o código do produto: ")
+  vender_produto(codigo)
+elif menu == 2:
+  codigo = input("Insira o código do produto: ")
+  buscar_produto(codigo)
+elif menu == 3:
+  nome = input("Nome do produto: ")
+  while True:
+    try:
+      preco = float(input("Preço do produto: "))
+      break
+    except ValueError:
+      print("Por favor, insira um valor numérico para o preço.")
+  codigo = input("Código do produto: ")
+  while True:
+    try:
+      tamanho = int(input("Tamanho do produto: "))
+      break
+    except ValueError:
+      print("Por favor, insira um valor numérico para o tamanho.")
+  cor = input("Cor do produto: ")
+  modelo = input("Modelo do produto: ")
+  marca = input("Marca do produto: ")
+  while True:
+    try:
+      quantidade = int(input("Quantidade do produto: "))
+      break
+    except ValueError:
+      print("Por favor, insira um valor numérico para a quantidade.")
 
-    adicionar_produto(conn, nome, preco, codigo, tamanho, cor, modelo, marca,
-                      quantidade)
-  else:
-    print("Opção inválida")
+  adicionar_produto(nome, preco, codigo, tamanho, cor, modelo, marca,
+                    quantidade)
+else:
+  print("Opção inválida")
 
-  conn.close()
-
-
-if __name__ == "__main__":
-  main()
+conn.commit()
+conn.close()
 
 #verificador de codigo de barras padrao EAN-13
 '''
