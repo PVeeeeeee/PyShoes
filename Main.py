@@ -1,11 +1,9 @@
 import sqlite3
 
+with sqlite3.connect('produtos.db') as conn:
+  c = conn.cursor()
 
-def criar_tabela_produtos():
-  with sqlite3.connect('produtos.db') as conn:
-    c = conn.cursor()
-
-    c.execute('''
+  c.execute('''
       CREATE TABLE IF NOT EXISTS produtos (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           number INTEGER DEFAULT 1,
@@ -23,6 +21,7 @@ def criar_tabela_produtos():
 
 def adicionar_produto(nome, preco, codigo, tamanho, cor, modelo, marca,
                       quantidade):
+
   with sqlite3.connect('produtos.db') as conn:
     c = conn.cursor()
 
@@ -41,55 +40,53 @@ def adicionar_produto(nome, preco, codigo, tamanho, cor, modelo, marca,
 
 
 def buscar_produto(codigo):
-  try:
-    with sqlite3.connect('produtos.db') as conn:
-      c = conn.cursor()
+  with sqlite3.connect('produtos.db') as conn:
+    c = conn.cursor()
 
-      c.execute(
-          'SELECT number, nome, preco, codigo, tamanho, cor, modelo, marca, quantidade FROM produtos WHERE codigo = ?',
-          (codigo, ))
-      produtos = c.fetchall()
+    c.execute(
+        'SELECT number, nome, preco, codigo, tamanho, cor, modelo, marca, quantidade FROM produtos WHERE codigo = ?',
+        (codigo, ))
+    produtos = c.fetchall()
 
-    if produtos:
-      print("\nProdutos encontrados:")
-      for produto in produtos:
-        print(produto)
+  if not produtos:
+    print("Produto não encontrado.")
 
-      editar_menu = int(
-          input(
-              "\nO que você quer fazer?\n1- Editar produto\n2- Deletar produto\n"
-          ))
+  else:
+    print("\nProdutos encontrados:")
+    for produto in produtos:
+      print(produto)
 
-      if len(produtos) > 1:
-        number = int(input("Insira o N° do produto: "))
-      else:
-        number = produtos[0][0]
+    sub_menu = int(
+        input(
+            "\nO que você quer fazer?\n1- Editar produto\n2- Deletar produto\n"
+        ))
 
-      if editar_menu == 1:
-        nome = input("Novo nome do produto: ")
-        preco = float(input("Novo preço do produto: "))
-        tamanho = input("Novo tamanho do produto: ")
-        cor = input("Nova cor do produto: ")
-        modelo = input("Novo modelo do produto: ")
-        marca = input("Nova marca do produto: ")
-        quantidade = int(input("Nova quantidade do produto: "))
-
-        editar_produto(number, nome, preco, codigo, tamanho, cor, modelo,
-                       marca, quantidade)
-
-      elif editar_menu == 2:
-        deletar_produto(number, codigo)
-
+    if len(produtos) > 1:
+      number = int(input("Insira o N° do produto: "))
     else:
-      print("Produto não encontrado.")
-  except Exception as e:
-    print(f"Ocorreu um erro: {e}")
+      number = produtos[0][0]
+
+    if sub_menu == 1:
+      nome = input("Novo nome do produto: ")
+      preco = float(input("Novo preço do produto: "))
+      tamanho = input("Novo tamanho do produto: ")
+      cor = input("Nova cor do produto: ")
+      modelo = input("Novo modelo do produto: ")
+      marca = input("Nova marca do produto: ")
+      quantidade = int(input("Nova quantidade do produto: "))
+
+      editar_produto(number, nome, preco, codigo, tamanho, cor, modelo, marca,
+                     quantidade)
+
+    elif sub_menu == 2:
+      deletar_produto(number, codigo)
 
 
 def editar_produto(number, nome, preco, codigo, tamanho, cor, modelo, marca,
                    quantidade):
   conn = sqlite3.connect('produtos.db')
   c = conn.cursor()
+
   c.execute(
       '''
   UPDATE produtos
@@ -102,8 +99,8 @@ def editar_produto(number, nome, preco, codigo, tamanho, cor, modelo, marca,
       quantidade = ?
   WHERE codigo = ? and number = ?
   ''', (nome, preco, tamanho, cor, modelo, marca, quantidade, codigo, number))
+
   conn.commit()
-  conn.close()
 
   print("Produto editado com sucesso!")
 
@@ -129,7 +126,7 @@ def deletar_produto(number, codigo):
           (new_number, codigo, old_number))
 
   conn.commit()
-  conn.close()
+
   print("Produto deletado com sucesso!")
 
 
@@ -161,17 +158,16 @@ def vender_produto(codigo):
         c.execute(
             'UPDATE produtos SET quantidade = ? WHERE codigo = ? and number = ?',
             (nova_quantidade, codigo, number))
+
         conn.commit()
+
         print("Produto vendido com sucesso!")
+
       else:
         print("Produto sem estoque")
     else:
       print("Produto não encontrado.")
 
-  conn.close()
-
-
-criar_tabela_produtos()
 
 menu = int(
     input('''O que você quer fazer?
@@ -186,7 +182,7 @@ if menu == 1:
 
 elif menu == 2:
   codigo = input("Insira o código do produto: ")
-  produtos = buscar_produto(codigo)
+  buscar_produto(codigo)
 
 elif menu == 3:
   nome = input("Nome do produto: ")
@@ -200,8 +196,11 @@ elif menu == 3:
 
   adicionar_produto(nome, preco, codigo, tamanho, cor, modelo, marca,
                     quantidade)
+
 else:
   print("Opção inválida")
+
+conn.close()
 
 #verificador de codigo de barras padrao EAN-13
 '''
