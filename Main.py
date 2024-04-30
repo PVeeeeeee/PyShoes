@@ -62,7 +62,7 @@ def buscar_produto(codigo):
       if len(produtos) > 1:
         number = int(input("Insira o N° do produto: "))
       else:
-        number = produtos[0][1]
+        number = produtos[0][0]
 
       if sub_menu == 1:
         nome = input("Novo nome do produto: ")
