@@ -74,7 +74,7 @@ def buscar_produto(codigo):
             print("Por favor, insira um valor numérico para o preço.")
         while True:
           try:
-            tamanho = int(input("Tamanho do produto: "))
+            tamanho = int(input("Novo tamanho do produto: "))
             break
           except ValueError:
             print("Por favor, insira um valor numérico para o tamanho.")
