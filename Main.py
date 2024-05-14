@@ -1,4 +1,10 @@
-import sqlite3
+#Tem que ter modularização ou seja criar modulos no codigo esta apenas fazendo parte de um modulo, modulo é um CRUD onde vc tem que criar, ler, editar e deletar pordutos tem que ter 3 modulos   
+#Modulos tem que ter validações, como data, CPF entre outros
+#O programa tem que rodar em loop, ou seja tem que poder fazer varias funções sem precisar ficar iniciano o programa novamente, use while para isso
+#Crie as telas de modulos, olhe o projeto https://replit.com/@flaviusgorgonio/ProjetoComFuncoespy#main.py la você tera uma base de muita coisa
+#Crie pastas para separar os modulos e ficar melhor de enterder a logica
+
+import sqlite3 #não pode usar sqlite tem que ser pelo pickle
 
 conn = sqlite3.connect('produtos.db')
 c = conn.cursor()
