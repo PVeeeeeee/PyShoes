@@ -73,7 +73,7 @@ def calcular_comissao():
                 if data_venda.month == data_now.month and data_venda.year == data_now.year:
                     comissao_total += venda["valor"]
         
-            vendedor["comissao"] = comissao_total * 0.05
+            vendedor["comissao"] = round((comissao_total * 0.05), 2)
 
         db_pes.salvar_pessoas(pessoas)
 

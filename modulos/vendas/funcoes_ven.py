@@ -34,6 +34,9 @@ def vender_produto(codigo, cpf_cliente, cpf_vendedor):
             if not produto_para_venda:
                 print("Número de produto inválido.")
                 return
+            elif produto_para_venda['quantidade'] == 0:
+                print('Produto sem estoque')
+                return
         else:
             produto_para_venda = produtos_encontrados[0]
 
@@ -41,6 +44,8 @@ def vender_produto(codigo, cpf_cliente, cpf_vendedor):
             "id": id,
             "valor": produto_para_venda["preco"],
             "codigo_produto": codigo,
+            "produto_nome": produto_para_venda['nome'],
+            "produto_number": produto_para_venda["number"],
             "cpf_cliente": cpf_cliente,
             "cpf_vendedor": cpf_vendedor,
             "data_venda": data_now
@@ -54,23 +59,18 @@ def vender_produto(codigo, cpf_cliente, cpf_vendedor):
         db_pes.salvar_pessoas(pessoas)
 
         if produto_para_venda["quantidade"] == 1:
-            db_ven.registrar_venda(venda)
-            produtos.remove(produto_para_venda)
-            db_pro.salvar_produtos(produtos)
-            print("Produto vendido e removido do estoque")
+            print("Produto vendido e sem estoque!")
         else:
             produto_para_venda["quantidade"] -= 1
-            db_pro.salvar_produtos(produtos)
-            db_ven.registrar_venda(venda)
             print("Produto vendido com sucesso!")
+
+        db_ven.registrar_venda(venda)
+        db_pro.salvar_produtos(produtos)
 
         funcoes_fun.calcular_comissao()
 
     except Exception as e:
         print(f"Erro ao vender produto: {e}")
-
-
-
 
 
 
@@ -95,9 +95,9 @@ def buscar_venda(codigo=None, cpf=None):
             if produto and cliente and vendedor:
                 venda_formatada = {
                     "id": venda["id"],
-                    "Produto": produto["nome"],
-                    "Código": f"{produto['codigo']} ({produto['number']})",
-                    "Valor": produto["preco"],
+                    "Produto_nome": venda["produto_nome"],
+                    "Código": f"{venda['codigo_produto']} ({venda['produto_number']})",
+                    "Valor": venda["valor"],
                     "Cliente": cliente["nome"],
                     "Vendedor": vendedor["nome"],
                     "Data": venda["data_venda"]
@@ -139,9 +139,6 @@ def buscar_venda(codigo=None, cpf=None):
         print(f"Erro ao buscar vendas: {e}")
 
 
-
-
-
 def editar_venda(id_venda):
     try:
         vendas = db_ven.carregar_vendas()
@@ -162,12 +159,12 @@ def editar_venda(id_venda):
             else:
                 print("\nProdutos encontrados:")
                 for produto in produtos_encontrados:
-                    print(tabulate(produto.items(), tablefmt="pretty"))
+                    print(tabulate([produto], headers="keys", tablefmt="pretty"))
                 if len(produtos_encontrados) > 1:
                     number = int(input("Insira o N° do produto: ")) - 1
                 else:
                     number = 0
-                produto = produtos_encontrados[number]
+                produto_novo = produtos_encontrados[number]
                 break
 
         while True:
@@ -183,7 +180,7 @@ def editar_venda(id_venda):
                     nome_cliente = input("Nome do Cliente: ")
                     cpf_cliente = novo_cliente
                     funcoes_cli.adicionar_cli(nome_cliente, cpf_cliente)
-                    pessoas['clientes'] = db_pes.carregar_pessoas()['clientes']
+                    pessoas = db_pes.carregar_pessoas() 
                     cliente_novo = pessoas['clientes'][novo_cliente]
                     break
                 else:
@@ -202,7 +199,8 @@ def editar_venda(id_venda):
         cliente_antigo = pessoas['clientes'].get(venda_para_editar["cpf_cliente"])
         vendedor_antigo = pessoas['vendedores'].get(venda_para_editar["cpf_vendedor"])
         valor_antigo = venda_para_editar['valor']
-        valor_novo = produto['preco']
+        valor_novo = produto_novo['preco']
+        produto_antigo = next((prod for prod in produtos if prod["codigo"] == venda_para_editar['codigo_produto'] and prod["number"] == venda_para_editar['produto_number']), None)
 
         if cliente_antigo and novo_cliente != venda_para_editar['cpf_cliente']:
             cliente_antigo['produtos_comprados'] -= valor_antigo
@@ -222,10 +220,16 @@ def editar_venda(id_venda):
                 vendedor_novo['produtos_vendidos'] -= valor_antigo
                 vendedor_novo['produtos_vendidos'] += valor_novo
 
+        if produto_antigo and (novo_codigo != venda_para_editar['codigo_produto'] or produto_novo['number'] != venda_para_editar['produto_number']):
+            produto_antigo['quantidade'] += 1
+            produto_novo['quantidade'] -= 1
+
         venda_editada = {
             "id": id_venda,
-            "codigo_produto": produto['codigo'],
-            "valor": produto['preco'],
+            "codigo_produto": produto_novo['codigo'],
+            "produto_nome": produto_novo['produto_nome'],
+            "produto_number": produto_novo['number'],
+            "valor": produto_novo['preco'],
             "cpf_cliente": novo_cliente,
             "cpf_vendedor": novo_vendedor,
             "data_venda": data_now
@@ -234,6 +238,7 @@ def editar_venda(id_venda):
         vendas[vendas.index(venda_para_editar)] = venda_editada
         db_ven.salvar_vendas(vendas)
         db_pes.salvar_pessoas(pessoas)
+        db_pro.salvar_produtos(produtos)
         funcoes_fun.calcular_comissao()
         print("Venda editada com sucesso!")
 
@@ -241,16 +246,11 @@ def editar_venda(id_venda):
         print(f"Erro ao editar venda: {e}")
 
 
-
-
-
-
-
-
 def deletar_venda(id_venda):
     try:
         vendas = db_ven.carregar_vendas()
         pessoas = db_pes.carregar_pessoas()
+        produtos = db_pro.carregar_produtos()
 
         venda_para_deletar = next((venda for venda in vendas if venda["id"] == id_venda), None)
         if not venda_para_deletar:
@@ -264,16 +264,19 @@ def deletar_venda(id_venda):
 
         cliente = pessoas['clientes'].get(venda_para_deletar["cpf_cliente"])
         vendedor = pessoas['vendedores'].get(venda_para_deletar["cpf_vendedor"])
+        produto = next((prod for prod in produtos if prod["codigo"] == venda_para_deletar["codigo_produto"]), None)
 
         if cliente:
             cliente["produtos_comprados"] -= venda_para_deletar["valor"]
-
         if vendedor:
             vendedor["produtos_vendidos"] -= venda_para_deletar["valor"]
+        if produto:
+            produto["quantidade"] += 1
 
         vendas.remove(venda_para_deletar)
         db_ven.salvar_vendas(vendas)
         db_pes.salvar_pessoas(pessoas)
+        db_pro.salvar_produtos(produtos)
         funcoes_fun.calcular_comissao()
         print("Venda deletada com sucesso!")
 
