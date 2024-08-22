@@ -75,7 +75,7 @@ def adicionar_produto(codigo, nome, preco, tamanho, cor, local, marca, quantidad
 
 
 def buscar_produto(codigo):
-    #try:
+    try:
         if codigo == "0" or codigo.strip() == "":
             os.system("clear")
             return
@@ -128,14 +128,14 @@ def buscar_produto(codigo):
                 os.system("clear")
                 print("Opção inválida.")
 
-    #except Exception as e:
-      #  print(f"Erro ao exibir produto: {e}")
+    except Exception as e:
+        print(f"Erro ao exibir produto: {e}")
 
 
 
 
 def editar_produto(codigo, number):
-    #try:
+    try:
         produtos = db_pro.carregar_produtos()
 
         if str(number) == "0" or  str(number).strip() == "":
@@ -221,8 +221,8 @@ def editar_produto(codigo, number):
             print("Produto editado com sucesso!\n")
             return buscar_produto(codigo)
             
-    #except Exception as e:
-       # print(f"Erro ao editar produto: {e}")
+    except Exception as e:
+        print(f"Erro ao editar produto: {e}")
 
 
 
