@@ -30,6 +30,7 @@ def main():
 
                 produtos = db_pro.carregar_produtos()
                 cod_exist = False
+                condicao = "pass"
 
                 for prod in produtos:
                     if prod['codigo'] == codigo and prod['marca'] != "deleted":

@@ -31,7 +31,6 @@ def validar_cpf(cpf):
         return False
     return True
 
-#ajustar 
 def verificar_telefone(telefone):
     telefone = telefone.strip()
     

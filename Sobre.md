@@ -23,7 +23,7 @@ No menu principal, você encontra três partes principais do sistema:
    
     *1*- **Criar Produto**: Atribui diversos valores informativos ao produto, como nome, código, preço, tamanho, quantidade, marca, etc. Produtos podem ter o mesmo código, mas são diferenciados pelo atributo número, tornando a combinação código + número o identificador de um produto específico.
    
-   *Nota: O número do produto é implementado automaticamente na criação com base nos números atuais de produtos que utilizam o mesmo código. Se tentar adicionar um produto com nome já existente no banco de dados, os atributos fixos serão puxados, como código, preço, marca, etc; porém valores diferentes para tamanho, cor e quantidade deverão ser preenchidos; o novo produto não vai ser salvo se suas informações forem idênticas a um já existente.*
+   *Nota: O número do produto é implementado automaticamente na criação com base nos números atuais de produtos que utilizam o mesmo código. Se tentar adicionar um produto com ´código já existente no banco de dados, os atributos fixos serão puxados, como nome, preço, marca, etc; porém valores diferentes para tamanho, cor e quantidade deverão ser preenchidos; o novo produto não vai ser salvo se suas informações forem idênticas a um já existente.*
 
    *2*- **Checar Produto**: Insira o código do produto e automaticamente todos os calçados de números diferentes com o determinado código serão listados.
    - *1*- **Editar Produto**: Permite editar todas as informações de um produto, exceto o código e o número.
@@ -47,4 +47,4 @@ No menu principal, você encontra três partes principais do sistema:
 
    *4*- **Relatórios**:
     - *1*- **Clientes**: Lista todos os clientes em ordem alfabética.
-    - *2*- **Funcionários**: Lista todos os funcionários em ordem alfabética.  
+    - *2*- **Funcionários**: Lista todos os funcionários em ordem alfabética.

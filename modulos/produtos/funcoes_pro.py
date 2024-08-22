@@ -50,7 +50,7 @@ def adicionar_produto(codigo, nome, preco, tamanho, cor, local, marca, quantidad
             if prodt and prodt.get('marcador') == "deleted":
                 prodt['marcador'] = ""
                 prodt['quantidade'] = quantidade
-                print(f"Produto específico já existente (codigo: {codigo} número: {n})")
+                print(f"Produto específico já existente (Nome: {prodt['nome']} número: {n})")
                 db_pro.salvar_produtos(produtos)
                 return menu_pro.main()
             else:
@@ -58,7 +58,7 @@ def adicionar_produto(codigo, nome, preco, tamanho, cor, local, marca, quantidad
                 return menu_pro.main()
         else:
             if condicao == "exist":
-                print(f"Produto adicionado como: {nome} (codigo: {codigo} número: {n})\n")
+                print(f"Produto adicionado como: {nome} (codigo: {codigo} número: {number})\n")
             else:
                 print("Produto adicionado com sucesso!\n")
 
