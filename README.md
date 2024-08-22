@@ -31,7 +31,7 @@ No menu principal, você encontra três partes principais do sistema:
    
      *Nota: Alterar valores fixos (nome, preço, local, marca) de um produto também irá atualizar os dados dos produtos com mesmo código. Se um produto marcado como deletador tiver suas informações reutilizadas ao cadastrar um produto novo, será reintregado podendo ter um novo valor para sua quantidade*
 
-   *3* **Relatório**: Imprime todos os calçados do banco de dados em ordem alfabética.
+   *3*- **Relatório**: Imprime todos os calçados do banco de dados em ordem alfabética.
 
 5. **Pessoas**:
   
